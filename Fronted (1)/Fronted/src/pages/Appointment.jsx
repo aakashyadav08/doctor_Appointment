@@ -6,6 +6,7 @@ import { RelatedDoctors } from "../components/RelatedDoctors";
 import { toast } from "react-toastify";
 import axios from "axios";
 
+
 export const Appointment = () => {
   const { docId } = useParams();
   const { doctors, currencySymbol,backendUrl, getDoctorsData,token } = useContext(AppContext);
@@ -87,7 +88,7 @@ export const Appointment = () => {
         if(data.success){
           toast.success(data.message)
           getDoctorsData()
-          navigate("/my-appointment")
+          navigate("/my-appointments")
 
         } else {
           toast.error(data.message)

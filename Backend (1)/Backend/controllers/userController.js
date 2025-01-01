@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken"
 
 import {v2 as cloudinary} from "cloudinary"
 import doctorModel from '../models/doctorModel.js';
+import appointmentModel from '../models/appointmentModel.js'
 
 //*register user
 const registerUser = async(req,res) => {
@@ -160,6 +161,22 @@ const bookAppointment = async (req, res) => {
       res.json({ success: false, message: "Server error" });
     }
   };
-  
+//   Api  to get a user appointment for  frondeted my appointment page
+const listAppointment = async (req, res) => {
+    try {
+        const { userId } = req.user; // Assuming userId is attached to req.user by authUser middleware
+        const appointments = await appointmentModel.find({ userId });
 
-export { registerUser, loginUser, getProfile, updateProfile,bookAppointment }
+        if (!appointments || appointments.length === 0) {
+            return res.json({ success: false, message: "No appointments found" });
+        }
+
+        res.json({ success: true, appointments }); // Send success response with appointments
+    } catch (error) {
+        console.error(error);
+        res.json({ success: false, message: "Server error" });
+    }
+};
+
+
+export { registerUser, loginUser, getProfile, updateProfile,bookAppointment ,listAppointment}
