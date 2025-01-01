@@ -1,15 +1,18 @@
-// authUser middleware example
-const authUser = (req, res, next) => {
-    const token = req.header('token');
-    if (!token) {
-        return res.status(401).json({ success: false, message: 'No token, authorization denied' });
-    }
+import jwt from "jsonwebtoken"
 
+const authUser = (req,res,next) => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user; // Attach user info to req.user
-        next();
+        const { token } = req.headers
+        if(!token){
+            res.json({success:false, message:"Not Authorized Login"});
+        }
+
+        const decode_token = jwt.verify(token, process.env.JWT_SECRET)
+        req.body.userId = decode_token.id
+        next()
     } catch (error) {
-        res.status(401).json({ success: false, message: 'Token is not valid' });
+        res.json({success:false, message:error.message})
     }
-};
+}
+
+export default authUser;

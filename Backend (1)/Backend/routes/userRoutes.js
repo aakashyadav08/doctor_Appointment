@@ -1,17 +1,16 @@
-import express from "express"
-import { bookAppointment, getProfile, loginUser, registerUser, updateProfile,listAppointment } from "../controllers/userController.js"
-import authUser from "../middlewares/authUser.js"
-import upload from "../middlewares/multer.js"
+import express from "express";
+import { bookAppointment, getProfile, loginUser, registerUser, updateProfile, listAppointments } from "../controllers/userController.js";
+import authUser from "../middlewares/authUser.js";
+import upload from "../middlewares/multer.js";
 
-const userRouter = express.Router()
+const userRouter = express.Router();
 
-userRouter.post('/register',registerUser)
-userRouter.post('/login',loginUser)
+userRouter.post('/register', registerUser);
+userRouter.post('/login', loginUser);
 
-userRouter.get('/get-profile',authUser,getProfile)
-userRouter.post('/update-profile',upload.single('image'),authUser,updateProfile)
-userRouter.post('/book-appointment',authUser,bookAppointment)
-userRouter.get('/appointments', authUser, listAppointment);
+userRouter.get('/get-profile', authUser, getProfile);
+userRouter.post('/update-profile', upload.single('image'), authUser, updateProfile);
+userRouter.post('/book-appointment', authUser, bookAppointment);
+userRouter.get('/appointments', authUser, listAppointments); // Correct route here
 
-
-export default userRouter
+export default userRouter;
