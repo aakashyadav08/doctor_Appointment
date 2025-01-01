@@ -207,6 +207,31 @@ const listAppointments = async (req, res) => {
       res.json({ success: false, message: 'An error occurred while fetching appointments' });
     }
   };
+
+
+  //Api to cancel appointment
+  const cancelAppointment=async(req,res)=>{
+    try {
+      const {userId,appointmentId}=req.body
+      const appointmentData=await appointmentModel.findById(appointmentId)
+      // 
+      if(appointmentData.userId !==userId){
+        return res.json({sucess:false,message:"Unauthorized action"})
+      }
+      await appointmentModel.findByIdAndUpdate(appointmentId,{cancelled:true})
+      // releasein g docotro slot
+      const{docId,slotDate,slotTime}=appointmentData
+      const doctorData=await doctorModel.findById(docId)
+      let slots_booked=doctorData.slots_booked
+      slots_booked[slotDate]=slots_booked[slotDate].filter(e=>e!==slotTime)
+      await doctorModel.findByIdAndUpdate(docId,{slots_booked})
+      res.json({success:true,message:"appointment cancle"});
+
+      
+    } catch (error) {
+      
+    }
+  }
   
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments };
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments,cancelAppointment };
