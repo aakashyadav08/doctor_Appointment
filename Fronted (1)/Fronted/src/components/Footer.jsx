@@ -31,7 +31,7 @@ export const Footer = () => {
           <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
           <ul className="flex flex-col gap-2 text-gray-600">
             <li>+91 99005 77886</li>
-            <li>aryanTech@gmail.com</li>
+            <li>as@gmail.com</li>
           </ul>
         </div>
       </div>
@@ -39,7 +39,7 @@ export const Footer = () => {
       <div>
         <hr />
         <p className="py-5 text-sm text-center">
-          Copyright 2025 @ Aakash.dev - All Right Reserved.
+          Copyright 2025 @ AS.dev - All Right Reserved.
         </p>
       </div>
     </div>

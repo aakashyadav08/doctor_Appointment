@@ -1,10 +1,13 @@
 import validator from 'validator';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import userModel from '../models/userModel.js';
+
+
 import { v2 as cloudinary } from 'cloudinary';
 import doctorModel from '../models/doctorModel.js';
 import appointmentModel from '../models/appointmentModel.js'
+import nodemailer from 'nodemailer';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import userModel from '../models/userModel.js';
 
 //* Register User
 const registerUser = async (req, res) => {
@@ -234,4 +237,82 @@ const listAppointments = async (req, res) => {
   }
   
 
-export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments,cancelAppointment };
+//forget password
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Check if the user exists
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({ success: false, message: 'User not found' });
+    }
+
+    // Create a password reset token
+    const resetToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    // Create a reset URL
+    const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+    // Send the reset link to the user's email
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: 'Password Reset Request',
+      text: `To reset your password, please click the following link: ${resetUrl}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.json({ success: false, message: 'Error sending email' });
+      }
+      res.json({ success: true, message: 'Password reset link sent' });
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: 'Server error' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    // Verify the reset token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(password, salt);
+
+    // Update the user's password
+    await userModel.findByIdAndUpdate(decoded.id, { password: hashPassword });
+
+    res.json({ success: true, message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error);
+    res.json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
+
+
+
+
+
+
+export { registerUser, loginUser, getProfile, updateProfile, bookAppointment, listAppointments,cancelAppointment,forgotPassword,resetPassword };
